@@ -97,7 +97,9 @@ iwOptionsWindow::iwOptionsWindow(SoundManager& soundManager)
 
     AddTextButton(ID_btMusicPlayer, DrawPoint(100, 380), Extent(160, 22), TextureColor::Green2, _("Music player"),
                   NormalFont);
+#if !__EMSCRIPTEN__
     AddTextButton(ID_btAdvanced, DrawPoint(67, 412), Extent(168, 24), TextureColor::Green2, _("Advanced"), NormalFont);
+#endif
     AddTextButton(ID_btSurrender, DrawPoint(67, 443), Extent(168, 24), TextureColor::Red1, _("Surrender"), NormalFont);
     AddTextButton(ID_btEndGame, DrawPoint(67, 474), Extent(168, 24), TextureColor::Red1, _("End game"), NormalFont);
 }

@@ -50,8 +50,10 @@ dskMainMenu::dskMainMenu()
     // "Intro"
     AddTextButton(ID_btIntro, DrawPoint(115, 280), Extent(220, 22), TextureColor::Green2, _("Intro"), NormalFont)
       ->SetEnabled(false);
+#ifndef __EMSCRIPTEN__
     // "ReadMe"
     AddTextButton(ID_btReadme, DrawPoint(115, 310), Extent(220, 22), TextureColor::Green2, _("Readme"), NormalFont);
+#endif
     // "Credits"
     AddTextButton(ID_btCredits, DrawPoint(115, 340), Extent(220, 22), TextureColor::Green2, _("Credits"), NormalFont);
 #if !__EMSCRIPTEN__
@@ -95,11 +97,13 @@ void dskMainMenu::Msg_MsgBoxResult(const unsigned msgbox_id, const MsgboxResult 
 bool dskMainMenu::Msg_LeftUp(const MouseCoords& mc)
 {
     auto* txtVersion = GetCtrl<Window>(dskMenuBase::ID_txtVersion);
+#if !__EMSCRIPTEN__
     if(mc.dbl_click && IsPointInRect(mc.GetPos(), txtVersion->GetBoundaryRect()))
     {
         WINDOWMANAGER.Switch(std::make_unique<dskTest>());
         return true;
     }
+#endif
     return false;
 }
 

@@ -57,6 +57,11 @@ dskCredits::dskCredits() : Desktop(LOADER.GetImageN("setup013", 0)), itCurEntry(
     entry.lines.push_back(_("Quality Assurance"));
     entries.push_back(entry);
 
+    entry = CreditsEntry("Roman Turchin (ololoken):", GetCreditsImgOrDefault("ololoken"));
+    entry.lines.push_back(_("Programming"));
+    entry.lines.push_back(_("WASM build"));
+    entries.push_back(entry);
+
     entry = CreditsEntry("Patrick Haak (Demophobie):", GetCreditsImgOrDefault("demophobie"));
     entry.lines.push_back(_("Website Administration"));
     entry.lines.push_back(_("Quality Assurance"));

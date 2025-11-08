@@ -43,9 +43,9 @@ dskSinglePlayer::dskSinglePlayer()
     AddTextButton(5, DrawPoint(115, 250), Extent(220, 22), TextureColor::Green2, std::string(_("Campaigns")),
                   NormalFont);
     AddTextButton(6, DrawPoint(115, 280), Extent(220, 22), TextureColor::Green2, _("Unlimited Play"), NormalFont);
-
+#ifndef __EMSCRIPTEN__
     AddTextButton(4, DrawPoint(115, 320), Extent(220, 22), TextureColor::Green2, _("Play Replay"), NormalFont);
-
+#endif
     AddTextButton(8, DrawPoint(115, 390), Extent(220, 22), TextureColor::Red1, _("Back"), NormalFont);
 
     AddImage(11, DrawPoint(20, 20), LOADER.GetImageN("logo", 0));
