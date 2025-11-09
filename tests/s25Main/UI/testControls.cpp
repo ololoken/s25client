@@ -14,6 +14,7 @@
 #include "driver/KeyEvent.h"
 #include "driver/MouseCoords.h"
 #include "helpers/mathFuncs.h"
+#include "mockupDrivers/MockupVideoDriver.h"
 #include "ogl/glFont.h"
 #include "uiHelper/uiHelpers.hpp"
 #include "libsiedler2/ArchivItem_Bitmap_Player.h"
@@ -27,6 +28,7 @@
 #include <boost/test/unit_test.hpp>
 #include <Loader.h>
 #include <array>
+#include <limits>
 #include <numeric>
 
 // LCOV_EXCL_START
@@ -53,6 +55,26 @@ static std::unique_ptr<glFont> createMockFont(const std::vector<char32_t>& chars
 }
 
 BOOST_AUTO_TEST_SUITE(Controls)
+
+BOOST_FIXTURE_TEST_CASE(MouseOver, uiHelper::Fixture)
+{
+    const auto pos = rttr::test::randomPoint<DrawPoint>();
+    const auto size = rttr::test::randomPoint<Extent>(10);
+    const auto font = createMockFont({'H', 'e', 'l', 'o', '?'});
+    ctrlTextButton bt(nullptr, 1, pos, size, TextureColor::Bricks, "Hello", font.get(), "");
+    BOOST_TEST(bt.IsMouseOver(pos));
+    BOOST_TEST(!bt.IsMouseOver(pos - DrawPoint(1, 0)));
+    BOOST_TEST(!bt.IsMouseOver(pos - DrawPoint(0, 1)));
+    BOOST_TEST(bt.IsMouseOver(pos + size / 2u));
+    BOOST_TEST(bt.IsMouseOver(pos + size - DrawPoint(1, 1)));
+    BOOST_TEST(!bt.IsMouseOver(pos + size));
+    BOOST_TEST(!bt.IsMouseOver(pos + size + DrawPoint(0, 1)));
+    // Without argument asks the video driver for the mouse position
+    uiHelper::GetVideoDriver()->SetMousePos(pos + size / 2u);
+    BOOST_TEST(bt.IsMouseOver());
+    uiHelper::GetVideoDriver()->SetMousePos(pos + size * 2u);
+    BOOST_TEST(!bt.IsMouseOver());
+}
 
 static void resizeMap(libsiedler2::ArchivItem_Map& glMap, const Extent& size)
 {
@@ -141,7 +163,9 @@ BOOST_FIXTURE_TEST_CASE(EditShowsCorrectChars, uiHelper::Fixture)
         std::string curText = std::accumulate(curChars.begin(), curChars.end(), std::string{});
         edt.SetText(curText);
         // Activate
-        edt2.Msg_LeftDown(MouseCoords(edt2.GetPos(), true));
+        MouseCoords mc(edt2.GetPos());
+        mc.ldown = true;
+        edt2.Msg_LeftDown(mc);
         edt2.Msg_PaintAfter();
         edt2.Msg_KeyDown(KeyEvent{KeyType::Char, c, false, false, false});
         // Remove chars from front until in size
@@ -154,7 +178,9 @@ BOOST_FIXTURE_TEST_CASE(EditShowsCorrectChars, uiHelper::Fixture)
         BOOST_TEST_REQUIRE(txt2->GetText() == curText);
     }
     // Check navigating of cursor
-    edt.Msg_LeftDown(MouseCoords(edt.GetPos(), true)); // Activate
+    MouseCoords mc(edt2.GetPos());
+    mc.ldown = true;
+    edt.Msg_LeftDown(mc); // Activate
     edt.Msg_PaintAfter();
     int curCursorPos = curChars.size(); // Current cursor should be at end
     while(!curChars.empty())

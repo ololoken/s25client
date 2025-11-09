@@ -1,8 +1,8 @@
-# Copyright (C) 2005 - 2024 Settlers Freaks <sf-team at siedler25.org>
+# Copyright (C) 2005 - 2025 Settlers Freaks <sf-team at siedler25.org>
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-cmake_minimum_required(VERSION 3.16..3.25)
+cmake_minimum_required(VERSION 3.16..3.31)
 if(POLICY CMP0177)
   cmake_policy(SET CMP0177 NEW)  # Normalize install() DESTINATION paths
 endif()
@@ -23,11 +23,6 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" "${CMAKE_SOURCE_DIR}/external/libutil/cmake")
-if(CMAKE_VERSION VERSION_LESS 3.14)
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/libutil/cmake/cmake_3.14")
-endif()
-
-include(EnableCCache)
 
 set(checkSubmodules FALSE)
 # Figure out RTTR_REVISION (git hash) and RTTR_VERSION (date)
@@ -76,6 +71,7 @@ endif()
 
 # Just include required
 include(EnsureOutOfSourceBuild)
+include(EnableCCache)
 
 if(APPLE)
     set(CMAKE_INSTALL_RPATH "@executable_path" "@executable_path/../Frameworks")

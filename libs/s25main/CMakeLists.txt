@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-find_package(BZip2 1.0.6 REQUIRED)
-gather_dll(BZIP2)
+if (NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+    find_package(BZip2 1.0.6 REQUIRED)
+    gather_dll(BZIP2)
+endif()
 
 set(SOURCES_SUBDIRS )
 macro(AddDirectory dir)
@@ -61,19 +63,19 @@ target_link_libraries(s25Main PUBLIC
     gamedata
     driver
     Boost::filesystem Boost::disable_autolinking
-    PRIVATE BZip2::BZip2 Boost::iostreams Boost::locale Boost::nowide samplerate_cpp
+    PRIVATE Boost::iostreams Boost::locale Boost::nowide samplerate_cpp
 )
 if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     target_link_libraries(s25Main PUBLIC videoSDL2 audioSDL)
     set(USE_FLAGS "--use-port=sdl2 --use-port=sdl2_image \
-        --use-port=sdl2_mixer -sSDL2_MIXER_FORMATS=ogg -O3 -flto")
+        --use-port=sdl2_mixer -sSDL2_MIXER_FORMATS=ogg --use-port=bzip2 -O3 -flto")
     set_target_properties(s25Main PROPERTIES
-            COMPILE_FLAGS "${USE_FLAGS} -I/src/contrib/gl4es/include"
+            COMPILE_FLAGS "${USE_FLAGS} -I${CMAKE_SOURCE_DIR}/contrib/gl4es/include"
             LINK_FLAGS "${USE_FLAGS}"
     )
     add_definitions(-DRTTR_OGL_ES=0)
 else ()
-    target_link_libraries(s25Main PUBLIC glad)
+    target_link_libraries(s25Main PUBLIC glad PRIVATE BZip2::BZip2)
 endif ()
 
 if(WIN32 OR CYGWIN)

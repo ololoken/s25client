@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2021 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (C) 2005 - 2025 Settlers Freaks (sf-team at siedler25.org)
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -36,7 +36,6 @@ dskMainMenu::dskMainMenu()
 {
     RTTR_Assert(dskMenuBase::ID_FIRST_FREE <= 3);
 
-    // "Einzelspieler"
     AddTextButton(ID_btSingleplayer, DrawPoint(115, 180), Extent(220, 22), TextureColor::Green2, _("Singleplayer"),
                   NormalFont);
 
@@ -47,17 +46,13 @@ dskMainMenu::dskMainMenu()
 #endif
     // "Optionen"
     AddTextButton(ID_btOptions, DrawPoint(115, 250), Extent(220, 22), TextureColor::Green2, _("Options"), NormalFont);
-    // "Intro"
     AddTextButton(ID_btIntro, DrawPoint(115, 280), Extent(220, 22), TextureColor::Green2, _("Intro"), NormalFont)
       ->SetEnabled(false);
 #ifndef __EMSCRIPTEN__
-    // "ReadMe"
     AddTextButton(ID_btReadme, DrawPoint(115, 310), Extent(220, 22), TextureColor::Green2, _("Readme"), NormalFont);
 #endif
-    // "Credits"
     AddTextButton(ID_btCredits, DrawPoint(115, 340), Extent(220, 22), TextureColor::Green2, _("Credits"), NormalFont);
 #if !__EMSCRIPTEN__
-    // "Programm verlassen"
     AddTextButton(ID_btQuit, DrawPoint(115, 390), Extent(220, 22), TextureColor::Red1, _("Quit program"), NormalFont);
 #endif
     AddImage(ID_logo, DrawPoint(20, 20), LOADER.GetImageN("logo", 0));
@@ -98,7 +93,7 @@ bool dskMainMenu::Msg_LeftUp(const MouseCoords& mc)
 {
     auto* txtVersion = GetCtrl<Window>(dskMenuBase::ID_txtVersion);
 #if !__EMSCRIPTEN__
-    if(mc.dbl_click && IsPointInRect(mc.GetPos(), txtVersion->GetBoundaryRect()))
+    if(mc.dbl_click && IsPointInRect(mc.pos, txtVersion->GetBoundaryRect()))
     {
         WINDOWMANAGER.Switch(std::make_unique<dskTest>());
         return true;

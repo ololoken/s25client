@@ -1,4 +1,4 @@
-// Copyright (C) 2005 - 2024 Settlers Freaks (sf-team at siedler25.org)
+// Copyright (C) 2005 - 2025 Settlers Freaks (sf-team at siedler25.org)
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -115,7 +115,7 @@ bool Window::RelayMouseMessage(MouseMsgHandler msg, const MouseCoords& mc)
     // Use reverse iterator because the topmost (=last elements) should receive the messages first!
     for(Window* wnd : childIdToWnd_ | boost::adaptors::map_values | boost::adaptors::reversed)
     {
-        if(!lockedAreas_.empty() && IsInLockedRegion(mc.GetPos(), wnd))
+        if(!lockedAreas_.empty() && IsInLockedRegion(mc.pos, wnd))
             continue;
 
         if(wnd->visible_ && wnd->active_ && CALL_MEMBER_FN(*wnd, msg)(mc))
@@ -563,4 +563,14 @@ bool Window::IsInLockedRegion(const Position& pos, const Window* exception) cons
             return true;
     }
     return false;
+}
+
+bool Window::IsMouseOver() const
+{
+    return IsMouseOver(VIDEODRIVER.GetMousePos());
+}
+
+bool Window::IsMouseOver(const MouseCoords& mousePos) const
+{
+    return IsPointInRect(mousePos.pos, GetBoundaryRect());
 }

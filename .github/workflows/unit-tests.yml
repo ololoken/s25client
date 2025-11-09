@@ -41,7 +41,7 @@ jobs:
         with:
           submodules: true
       - name: Install boost
-        uses: MarkusJx/install-boost@v2.4.5
+        uses: MarkusJx/install-boost@6d8df42f57de83c5b326b5b83e7b35d650030103
         id: install-boost
         with:
           boost_version: ${{env.BOOST_VERSION}}
@@ -96,8 +96,10 @@ jobs:
           #   Use system boost
           #   Also include a (semi-)optimized build to a) shake out issues there an b) run the replay tests
           - { compiler: clang-14, os: ubuntu-22.04, type: Debug,          cmake: 3.22.1, boost: 1.74.0, cxx: 17 }
+            # Similar but latest CMake 3.x
           - { compiler: gcc-11,   os: ubuntu-22.04, type: Debug,          cmake: 3.22.1, boost: 1.74.0 }
-          - { compiler: gcc-11,   os: ubuntu-22.04, type: RelWithDebInfo, cmake: 3.22.1, boost: 1.74.0 }
+            # Use CMake 4.x
+          - { compiler: gcc-11,   os: ubuntu-22.04, type: RelWithDebInfo, cmake: 4.1.1,  boost: 1.74.0 }
           #
           #  Latest Compilers
           #   Use default boost
@@ -105,6 +107,7 @@ jobs:
           #   Use default cmake
           - { compiler: gcc-14,   os: ubuntu-24.04, type: Debug }
           - { compiler: clang-18, os: ubuntu-24.04, type: Debug, externalSanitizer: true }
+          - { compiler: clang-21, os: ubuntu-latest, type: Debug, init_llvm: true}
 
     runs-on: ${{matrix.os}}
 
@@ -144,7 +147,7 @@ jobs:
         if: matrix.coverage
         with:
           submodules: true
-          fetch-depth: 0 # Faster checkout
+          fetch-depth: 0 # Full history
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -163,12 +166,19 @@ jobs:
             BOOST_ROOT=$(find "$HOMEBREW_CELLAR/boost/"* -maxdepth 0 -type d | tail -n1)
             echo "Choosen Boost: $BOOST_ROOT"
             [[ -n "$BOOST_ROOT" ]] || exit 1
+            ls "$BOOST_ROOT/include"
+            echo "CMake config files:"
+            find "$BOOST_ROOT"/lib/cmake -type f
             echo "BOOST_ROOT=${BOOST_ROOT}" >> $GITHUB_ENV
           else
             compiler=${{matrix.compiler}}
             compiler=${compiler/gcc-/g++-}
-            sudo apt update
-            sudo apt install gettext libsdl2-dev libsdl2-mixer-dev libcurl4-openssl-dev libbz2-dev libminiupnpc-dev liblua5.2-dev $compiler
+            if [[ "${{matrix.init_llvm}}" == "true" ]]; then
+              clang_version=${compiler#clang-*}
+              wget -qO- "https://apt.llvm.org/llvm.sh" | sudo bash -s -- "${clang_version}"
+            fi
+            sudo apt-get -o Acquire::Retries=5 update
+            sudo apt-get -o Acquire::Retries=5 -y -q --no-install-suggests --no-install-recommends install gettext libsdl2-dev libsdl2-mixer-dev libcurl4-openssl-dev libbz2-dev libminiupnpc-dev liblua5.2-dev $compiler
           fi
 
       - name: Setup CCache
